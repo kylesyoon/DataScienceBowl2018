@@ -70,8 +70,6 @@ def main():
 	# preprocess data 
 	train_X, train_Y = preprocess_train(input_size=(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS))
 
-	test_X, test_image_sizes = preprocess_test(input_size=(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS))
-
 	# create generators
 	train_generator = create_train_generator()
 	train_generator.fit(train_X)
@@ -90,9 +88,12 @@ def main():
 		print('Starting training...')
 		model.fit_generator(train_generator.flow(train_X, train_Y), epochs=NUM_EPOCHS, steps_per_epoch=STEPS_PER_EPOCH, callbacks=callbacks, verbose=1)
 		print('Finished training...')
-
+		model.save('./snapshots/keras_unet.h5')
 
 	print('Starting submission...')
+
+	test_X, test_ids, test_image_sizes = preprocess_test(input_size=(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS))
+
 	predictions = model.predict(test_X, verbose=1)
 
 	preds = np.squeeze(predictions)

@@ -71,7 +71,7 @@ def preprocess_test(input_size):
 	    resized = resize(image, (input_size[0], input_size[1], input_size[2]), mode='constant', preserve_range=True)
 	    test_X[index_] = resized
 
-	return (test_X, test_image_sizes)
+	return (test_X, test_ids, test_image_sizes)
 
 
 def create_train_generator():
