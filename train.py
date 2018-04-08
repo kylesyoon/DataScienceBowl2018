@@ -39,7 +39,9 @@ def create_model():
 def create_callbacks():
 	print('Creating callbacks...')
 	early = EarlyStopping(patience=3, verbose=1)
-	checkpoint = ModelCheckpoint('./snapshots/keras_unet.h', verbose=1, save_best_only=True)
+	checkpoint = ModelCheckpoint('./snapshots/keras_unet.h5', verbose=1, save_best_only=True)
+
+	return [early, checkpoint]
 
 
 def rle_encoding(x):
@@ -80,10 +82,15 @@ def main():
 	# create the callbacks
 	callbacks = create_callbacks()
 
-	# train
-	print('Starting training...')
-	model.fit_generator(train_generator.flow(train_X, train_Y), epochs=NUM_EPOCHS, steps_per_epoch=STEPS_PER_EPOCH, callbacks=callbacks, verbose=1)
-	print('Finished training...')
+	if os.path.isfile('./snapshots/keras_unet.h5') is True:
+		print('loading model...')
+		model = load_model('./snapshots/keras_unet.h5')
+	else:
+		# train
+		print('Starting training...')
+		model.fit_generator(train_generator.flow(train_X, train_Y), epochs=NUM_EPOCHS, steps_per_epoch=STEPS_PER_EPOCH, callbacks=callbacks, verbose=1)
+		print('Finished training...')
+
 
 	print('Starting submission...')
 	predictions = model.predict(test_X, verbose=1)
