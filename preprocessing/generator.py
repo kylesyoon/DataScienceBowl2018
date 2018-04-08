@@ -7,8 +7,8 @@ from skimage.transform import resize
 
 from keras.preprocessing.image import ImageDataGenerator
 
-TRAIN_PATH = 'data/stage1_train/'
-TEST_PATH = 'data/stage1_test/'
+TRAIN_PATH = './data/stage1_train/'
+TEST_PATH = './data/stage1_test/'
 
 def preprocess_train(input_size):
 	#data/
