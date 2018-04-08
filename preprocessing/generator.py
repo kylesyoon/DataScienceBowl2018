@@ -61,6 +61,7 @@ def preprocess_train(input_size):
 def preprocess_test(input_size):
 	test_ids = next(os.walk(TEST_PATH))[1]
 
+	test_X = np.zeros((len(test_ids), input_size[0], input_size[1], input_size[2]), dtype=np.uint8)
 	test_image_sizes = [] # we are going to resize the predicted test images back to original size
 
 	for index_, test_id in tqdm(enumerate(test_ids), total=len(test_ids)):
