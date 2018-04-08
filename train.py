@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from tqdm import tqdm
 
+from skimage.transform import resize
 from skimage.morphology import label
 
 from keras.models import Model, load_model
