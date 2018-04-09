@@ -20,8 +20,8 @@ from preprocessing.generator import preprocess_train, preprocess_test, create_tr
 IMG_WIDTH = IMG_HEIGHT = 256
 IMG_CHANNELS = 3
 
-NUM_EPOCHS = 1
-STEPS_PER_EPOCH = 10  # there are 670 images
+NUM_EPOCHS = 30
+STEPS_PER_EPOCH = 600  # there are 670 images
 
 
 def create_model():
