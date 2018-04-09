@@ -21,11 +21,10 @@ def unet(input):
 	pool_4 = MaxPooling2D((2, 2))(conv_4)
 
 	conv_5 = Conv2D(256, (3, 3), activation='relu', padding='same')(pool_4)
-	conv_5 = Conv2D(256, (3, 3), activation='relu', padding='same')(conv_5)
-
 	dropout = Dropout(0.2)(conv_5)
+	conv_5 = Conv2D(256, (3, 3), activation='relu', padding='same')(dropout)
 
-	up_6 = Conv2DTranspose(256, (2, 2), strides=(2, 2), padding='same')(dropout)
+	up_6 = Conv2DTranspose(256, (2, 2), strides=(2, 2), padding='same')(conv_5)
 	up_6 = concatenate([up_6, conv_4], axis=3)
 	conv_6 = Conv2D(128, (3, 3), activation='relu', padding='same')(up_6)
 	conv_6 = Conv2D(128, (3, 3), activation='relu', padding='same')(conv_6)
