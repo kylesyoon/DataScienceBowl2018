@@ -3,8 +3,9 @@ from keras.models import Model
 
 def unet(input):
 	inputs = Input((input[0], input[1], input[2])) # height, width, channels
+	norm = Lambda(lambda x: x / 255)(inputs)
 
-	conv_1 = Conv2D(16, (3, 3), activation='relu', padding='same')(inputs)
+	conv_1 = Conv2D(16, (3, 3), activation='relu', padding='same')(norm)
 	conv_1 = Conv2D(16, (3, 3), activation='relu', padding='same')(conv_1)
 	pool_1 = MaxPooling2D((2, 2))(conv_1)
 
