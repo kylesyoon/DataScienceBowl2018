@@ -30,8 +30,9 @@ def create_model():
     model = unet(input=(IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
     optimizer = Adam(lr=1e-5)
 
-    model.compile(optimizer=optimizer, loss='binary_crossentropy',
-                  metrics=[])  # TODO: Metrics
+    model.compile(optimizer=optimizer,
+                  loss='binary_crossentropy',
+                  metrics=['accuracy'])
 
     model.summary()
 
@@ -41,7 +42,7 @@ def create_model():
 def create_callbacks():
     print('Creating callbacks...')
     checkpoint = ModelCheckpoint(
-        './snapshots/keras_unet_{{epoch:02d}}.h5'.format(), verbose=1)
+        './snapshots/keras_unet.h5'.format(), verbose=1)
 
     return [checkpoint]
 

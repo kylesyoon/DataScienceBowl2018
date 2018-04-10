@@ -24,22 +24,22 @@ def unet(input):
 	dropout = Dropout(0.2)(conv_5)
 	conv_5 = Conv2D(256, (3, 3), activation='relu', padding='same')(dropout)
 
-	up_6 = Conv2DTranspose(256, (2, 2), strides=(2, 2), padding='same')(conv_5)
+	up_6 = Conv2DTranspose(128, (2, 2), strides=(2, 2), padding='same')(conv_5)
 	up_6 = concatenate([up_6, conv_4], axis=3)
 	conv_6 = Conv2D(128, (3, 3), activation='relu', padding='same')(up_6)
 	conv_6 = Conv2D(128, (3, 3), activation='relu', padding='same')(conv_6)
 
-	up_7 = Conv2DTranspose(128, (2, 2), strides=(2, 2), padding='same')(conv_6)
+	up_7 = Conv2DTranspose(64, (2, 2), strides=(2, 2), padding='same')(conv_6)
 	up_7 = concatenate([up_7, conv_3], axis=3)
 	conv_7 = Conv2D(64, (3, 3), activation='relu', padding='same')(up_7)
 	conv_7 = Conv2D(64, (3, 3), activation='relu', padding='same')(conv_7)
 
-	up_8 = Conv2DTranspose(64, (2, 2), strides=(2, 2), padding='same')(conv_7)
+	up_8 = Conv2DTranspose(32, (2, 2), strides=(2, 2), padding='same')(conv_7)
 	up_8 = concatenate([up_8, conv_2], axis=3)
 	conv_8 = Conv2D(32, (3, 3), activation='relu', padding='same')(up_8)
 	conv_8 = Conv2D(32, (3, 3), activation='relu', padding='same')(conv_8)
 
-	up_9 = Conv2DTranspose(32, (2, 2), strides=(2, 2), padding='same')(conv_8)
+	up_9 = Conv2DTranspose(16, (2, 2), strides=(2, 2), padding='same')(conv_8)
 	up_9 = concatenate([up_9, conv_1], axis=3)
 	conv_9 = Conv2D(16, (3, 3), activation='relu', padding='same')(up_9)
 	conv_9 = Conv2D(16, (3, 3), activation='relu', padding='same')(conv_9)
