@@ -20,7 +20,8 @@ from preprocessing.generator import preprocess_train, preprocess_test, create_tr
 IMG_WIDTH = IMG_HEIGHT = 256
 IMG_CHANNELS = 3
 
-NUM_EPOCHS = 30
+BATCH_SIZE = 32
+NUM_EPOCHS = 50
 STEPS_PER_EPOCH = 600  # there are 670 images
 
 
@@ -28,7 +29,7 @@ def create_model():
     print('Creating model...')
 
     model = unet(input=(IMG_HEIGHT, IMG_WIDTH, IMG_CHANNELS))
-    optimizer = Adam(lr=1e-5)
+    optimizer = Adam(lr=1e-3)
 
     model.compile(optimizer=optimizer,
                   loss='binary_crossentropy',
@@ -42,7 +43,7 @@ def create_model():
 def create_callbacks():
     print('Creating callbacks...')
     checkpoint = ModelCheckpoint(
-        './snapshots/keras_unet.h5'.format(), verbose=1)
+        './snapshots/keras_unet_{epoch:02d}.h5', verbose=1)
 
     return [checkpoint]
 
@@ -97,50 +98,48 @@ def main():
     else:
         # train
         print('Starting training...')
-        history = model.fit_generator(train_generator.flow(train_X, train_Y, batch_size=1),
+        history = model.fit_generator(train_generator.flow(train_X, train_Y, batch_size=BATCH_SIZE),
                                       epochs=NUM_EPOCHS,
                                       steps_per_epoch=STEPS_PER_EPOCH,
                                       callbacks=callbacks,
                                       verbose=1,
                                       validation_data=val_generator.flow(
-                                          val_X, val_Y, batch_size=1),
-                                      validation_steps=STEPS_PER_EPOCH * 0.1)
+                                          val_X, val_Y, batch_size=BATCH_SIZE),
+                                      validation_steps=STEPS_PER_EPOCH * 0.2)
 
         print('Finished training...')
-        # save model
-        model.save('./snapshots/keras_unet.h5')
         # save training history
         with open('history.pkl', 'wb') as history_file:
             pickle.dump(history.history, history_file)
 
-    print('Starting submission...')
+    # print('Starting submission...')
 
-    test_X, test_ids, test_image_sizes = preprocess_test(
-        input_size=(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS))
+    # test_X, test_ids, test_image_sizes = preprocess_test(
+    #     input_size=(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS))
 
-    predictions = model.predict(test_X, verbose=1)
+    # predictions = model.predict(test_X, verbose=1)
 
-    preds = np.squeeze(predictions)
+    # preds = np.squeeze(predictions)
 
-    # resizing the predictions to original size
-    preds_resized = []
-    for index_, pred in enumerate(preds):
-        image = resize(
-            pred, test_image_sizes[index_], mode='constant', preserve_range=True)
-        preds_resized.append(image)
+    # # resizing the predictions to original size
+    # preds_resized = []
+    # for index_, pred in enumerate(preds):
+    #     image = resize(
+    #         pred, test_image_sizes[index_], mode='constant', preserve_range=True)
+    #     preds_resized.append(image)
 
-    new_test_ids = []
-    rles = []
-    for n, id_ in enumerate(test_ids):
-        rle = list(prob_to_rles(preds_resized[n]))
-        rles.extend(rle)
-        new_test_ids.extend([id_] * len(rle))
+    # new_test_ids = []
+    # rles = []
+    # for n, id_ in enumerate(test_ids):
+    #     rle = list(prob_to_rles(preds_resized[n]))
+    #     rles.extend(rle)
+    #     new_test_ids.extend([id_] * len(rle))
 
-    submission = pd.DataFrame()
-    submission['ImageId'] = new_test_ids
-    submission['EncodedPixels'] = pd.Series(rles).apply(
-        lambda x: ' '.join(str(y) for y in x))
-    submission.to_csv('keras_unet.csv', index=False)
+    # submission = pd.DataFrame()
+    # submission['ImageId'] = new_test_ids
+    # submission['EncodedPixels'] = pd.Series(rles).apply(
+    #     lambda x: ' '.join(str(y) for y in x))
+    # submission.to_csv('keras_unet.csv', index=False)
 
 
 if __name__ == '__main__':

@@ -11,7 +11,7 @@ TRAIN_PATH = './data/stage1_train/'
 TEST_PATH = './data/stage1_test/'
 
 
-def preprocess_train(input_size, val_split=0.1):
+def preprocess_train(input_size, val_split=0.2):
     # data/
     #    stage1_train/
     #         image_id/
@@ -45,23 +45,22 @@ def preprocess_train(input_size, val_split=0.1):
             path = TRAIN_PATH + image_id
             # getting the images
             image_path = path + '/images/' + image_id + '.png'
-            image = imread(image_path)
-            resized = resize(
-                image, (input_size[0], input_size[1], input_size[2]), mode='constant', preserve_range=True)
+            image = imread(image_path)[:,:,:input_size[2]]
+            resized = resize(image, (input_size[0], input_size[1]), mode='constant', preserve_range=True)
             train_X[index_] = resized
             # getting the masks
             complete_mask = np.zeros(
                 (input_size[0], input_size[1], 1), dtype=np.bool)
             for mask_id in next(os.walk(path + '/masks/'))[2]:
                 mask_path = path + '/masks/' + mask_id
-                mask = imread(mask_path)
-                resized_mask = resize(
-                    mask, (input_size[0], input_size[1], 1), mode='constant', preserve_range=True)
+                single_mask = imread(mask_path)
+                single_mask = resize(single_mask, (input_size[0], input_size[1]), mode='constant', preserve_range=True)
+                single_mask = np.expand_dims(single_mask, axis=-1)
                 # creating one mask for all the masks for this image
-                complete_mask = np.maximum(resized_mask, complete_mask)
+                complete_mask = np.maximum(complete_mask, single_mask)
             train_Y[index_] = complete_mask
 
-    # save the formatted training data
+	    # save the formatted training data
         np.save('./data/train_X', train_X)
         np.save('./data/train_Y', train_Y)
 
@@ -73,17 +72,15 @@ def preprocess_train(input_size, val_split=0.1):
 def preprocess_test(input_size):
     test_ids = next(os.walk(TEST_PATH))[1]
 
-    test_X = np.zeros(
-        (len(test_ids), input_size[0], input_size[1], input_size[2]), dtype=np.uint8)
+    test_X = np.zeros((len(test_ids), input_size[0], input_size[1], input_size[2]), dtype=np.uint8)
     # we are going to resize the predicted test images back to original size
     test_image_sizes = []
 
     for index_, test_id in tqdm(enumerate(test_ids), total=len(test_ids)):
         image_path = TEST_PATH + test_id + '/images/' + test_id + '.png'
-        image = imread(image_path)
+        image = imread(image_path)[:,:,:input_size[2]]
         test_image_sizes.append((image.shape[0], image.shape[1]))
-        resized = resize(
-            image, (input_size[0], input_size[1], input_size[2]), mode='constant', preserve_range=True)
+        resized = resize(image, (input_size[0], input_size[1]), mode='constant', preserve_range=True)
         test_X[index_] = resized
 
     return (test_X, test_ids, test_image_sizes)
