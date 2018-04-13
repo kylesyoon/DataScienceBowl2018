@@ -8,7 +8,6 @@ from skimage.transform import resize
 from keras.preprocessing.image import ImageDataGenerator
 
 TRAIN_PATH = './data/stage1_train/'
-TEST_PATH = './data/stage1_test/'
 
 
 def preprocess_train(input_size, val_split=0.2):
@@ -69,15 +68,15 @@ def preprocess_train(input_size, val_split=0.2):
     return (train_X[val_size:], train_Y[val_size:], train_X[:val_size], train_Y[:val_size])
 
 
-def preprocess_test(input_size):
-    test_ids = next(os.walk(TEST_PATH))[1]
+def preprocess_test(path, input_size):
+    test_ids = next(os.walk(path))[1]
 
     test_X = np.zeros((len(test_ids), input_size[0], input_size[1], input_size[2]), dtype=np.uint8)
     # we are going to resize the predicted test images back to original size
     test_image_sizes = []
 
     for index_, test_id in tqdm(enumerate(test_ids), total=len(test_ids)):
-        image_path = TEST_PATH + test_id + '/images/' + test_id + '.png'
+        image_path = path + test_id + '/images/' + test_id + '.png'
         image = imread(image_path)[:,:,:input_size[2]]
         test_image_sizes.append((image.shape[0], image.shape[1]))
         resized = resize(image, (input_size[0], input_size[1]), mode='constant', preserve_range=True)

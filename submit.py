@@ -39,39 +39,46 @@ def prob_to_rles(x, cutoff=0.5):
 
 
 def main(args=None):
-	parser = argparse.ArgumentParser()
-	parser.add_argument('--path', help='File path to the model to use for submission')
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--model-path', help='File path to the model to use for submission')
+    parser.add_argument(
+        '--image-path', help='File path to the images to use for submission')
 
-	args = parser.parse_args()
-	model_path = args.path
+    args = parser.parse_args()
+    model_path = args.model_path
+    image_path = args.image_path
 
-	if model_path is None:
-		print('--path is required')
-		return
+    if model_path is None or image_path is None:
+        print('--path is required')
+        return
 
-	model = load_model(model_path)
-	test_X, test_ids, test_image_sizes = preprocess_test(input_size=(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS))
+    model = load_model(model_path)
+    test_X, test_ids, test_image_sizes = preprocess_test(path=image_path,
+                                                         input_size=(IMG_WIDTH, IMG_HEIGHT, IMG_CHANNELS))
 
-	preds = model.predict(test_X, verbose=1)
-	preds = np.squeeze(preds)
+    preds = model.predict(test_X, verbose=1)
+    preds = np.squeeze(preds)
 
-	# resizing the predictions to original size
-	preds_resized = []
-	for index, pred in enumerate(preds):
-	    image = resize(pred, test_image_sizes[index], mode='constant', preserve_range=True)
-	    preds_resized.append(image)
+    # resizing the predictions to original size
+    preds_resized = []
+    for index, pred in enumerate(preds):
+        image = resize(
+            pred, test_image_sizes[index], mode='constant', preserve_range=True)
+        preds_resized.append(image)
 
-	pred_ids = []
-	rles = []
-	for index, id_ in enumerate(test_ids):
-	    rle = list(prob_to_rles(preds_resized[index]))
-	    rles.extend(rle)
-	    pred_ids.extend([id_] * len(rle))
+    pred_ids = []
+    rles = []
+    for index, id_ in enumerate(test_ids):
+        rle = list(prob_to_rles(preds_resized[index]))
+        rles.extend(rle)
+        pred_ids.extend([id_] * len(rle))
 
-	submission = pd.DataFrame()
-	submission['ImageId'] = pred_ids
-	submission['EncodedPixels'] = pd.Series(rles).apply(lambda x: ' '.join(str(y) for y in x))
-	submission.to_csv('submission.csv', index=False)
+    submission = pd.DataFrame()
+    submission['ImageId'] = pred_ids
+    submission['EncodedPixels'] = pd.Series(rles).apply(
+        lambda x: ' '.join(str(y) for y in x))
+    submission.to_csv('submission.csv', index=False)
 
 
 if __name__ == '__main__':
